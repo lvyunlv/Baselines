@@ -1,0 +1,61 @@
+git clone https://github.com/AntCPLab/OpenBumbleBee.git
+
+1. 安装依赖 (Ubuntu 22.04)
+首先按照SPU的安装步骤装好依赖库，装好python环境；
+之后激活conda环境，执行python3 -m pip install -r requirements-dev.txt，注意这里有个bug，我们需要安装jax[cpu]==0.4.16，而非0.4.26版本
+然后安装pip install 'transformers[flax]'，注意装好之后，可能会自动将jax和jaxlib降级为0.4.13，我们要主动再调整成0.4.16版本
+然后按照安装文档修改python库代码，是在/miniconda3/envs/bumblebee/lib/python3.10/site-packages文件夹下
+
+2. 编译程序
+bazel build -c opt examples/python/ml/flax_bert/... --jobs 32
+
+3. bert执行
+pip install datasets
+env SPU_BB_SET_IEQUAL_BITS=15 bazel run -c opt //examples/python/utils:nodectl -- --config `pwd`/examples/python/conf/2pc.json up
+env SPU_BB_SET_IEQUAL_BITS=15 bazel run -c opt //examples/python/ml/flax_bert -- --config `pwd`/examples/python/conf/2pc.json
+
+4. 修改输入token长度为128
+修改flax_bert.py文件中：
+# input_ids, attention_masks = (
+#     tokenizer(
+#         features,
+#         return_tensors="jax",
+#     )["input_ids"],
+#     tokenizer(
+#         features,
+#         return_tensors="jax",
+#     )["attention_mask"],
+# )
+encoded = tokenizer(
+    features,
+    max_length=128,
+    padding="max_length",
+    truncation=True,
+    return_tensors="jax",
+)
+input_ids = encoded["input_ids"]
+attention_masks = encoded["attention_mask"]
+
+5. 修改配置文件2pc.json，实现线程数调整
+"runtime_config": {
+    "protocol": "CHEETAH",
+    "field": "FM64",
+    "enable_pphlo_profile": true,
+    "enable_hal_profile": true,
+    "fxp_exp_mode": 0,
+    "fxp_exp_iters": 4,
+    "fxp_fraction_bits": 16,
+    "experimental_enable_colocated_optimization": true,
+    "cheetah_2pc_config": {
+        "enable_mul_lsb_error": true,
+        "approx_less_precision": 4,
+        "ot_kind": "YACL_Ferret"
+    },
+    "max_concurrency": 16
+},
+"link_desc": {
+    "recv_timeout_ms": 300000,
+    "connect_retry_times": 30,
+    "connect_retry_interval_ms": 500,
+    "brpc_timeout_ms": 300000
+}

@@ -1,0 +1,15 @@
+1. 安装依赖 (Ubuntu 22.04, two NVIDIA A40 GPUs, and 256 GB of RAM)
+python3 -m venv ~/env/shaft
+source ~/env/shaft/bin/activate
+pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+pip install wheel==0.40.0
+cd SHAFT
+pip install .
+git clone -b 'v4.45.0' --depth 1 https://github.com/huggingface/transformers
+pip install ./transformers
+
+2. Bert-base
+cd examples/text-classification
+pip install -r requirements.txt
+bash test_bert_base_128_comp.sh
+bash test_bert_base_128_comm.sh

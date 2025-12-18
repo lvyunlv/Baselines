@@ -1,0 +1,27 @@
+1. 安装依赖 (Ubuntu 22.04)
+CMake (>= 3.16)    apt install cmake
+g++ (Support C++20)    apt install build-essential
+Eigen3    apt install libeigen3-dev
+
+2. 编译代码
+cmake -DCMAKE_BUILD_TYPE=Release -S . -B build/
+cmake --build build/ --config Release --target all -j
+
+3. 代码测试 --- Micro Benchmarks (relu sigmoid tanh gelu softmax)
+## 单机测试：bash run-microbenchmarks-local.sh
+输出结果中找对应模块那一行，比如"relu: 13 ms, 332.031 KB"
+## 两机测试：Server1 (10.0.0.1)中"bash run-microbenchmarks-remote.sh 0 10.0.0.2"; Server2 (10.0.0.2)中"bash run-microbenchmarks-remote.sh 1 10.0.0.1"
+
+4. 代码测试 --- Benchmarks (Bert-Base, 128 input token)
+## 单机测试：bash run-benchmarks-local.sh
+输出结果中"bert: 65093 ms, 1.49624e+06 KB"表示整体开销；"nonlinear: 14842 ms, 553140 KB"表示非线性部分开销；差值即为线性部分开销
+## 两机测试: Server1 (10.0.0.1)中"bash run-benchmarks-remote.sh 0 10.0.0.2"; Server2 (10.0.0.2)中"bash run-benchmarks-remote.sh 1 10.0.0.1"
+
+5. 并行执行
+可以修改.sh脚本中的OMP_NUM_THREADS=4
+
+6. 修改输入Size
+在microbenchmarks文件夹对应cpp文件中，修改n的值，并重新编译
+
+7. 定点数精度
+gelu, tanh, softmax, sigmoid开销与定点数精度f有关，目前f取16，如需修改，在microbenchmarks文件夹对应cpp文件中，修改f的值，并重新编译
