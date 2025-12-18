@@ -1,31 +1,28 @@
 git clone https://github.com/AntCPLab/OpenBumbleBee.git
 
-1. 安装依赖 (Ubuntu 22.04)
-首先按照SPU的安装步骤装好依赖库，装好python环境；
-之后激活conda环境，执行python3 -m pip install -r requirements-dev.txt，注意这里有个bug，我们需要安装jax[cpu]==0.4.16，而非0.4.26版本
-然后安装pip install 'transformers[flax]'，注意装好之后，可能会自动将jax和jaxlib降级为0.4.13，我们要主动再调整成0.4.16版本
-然后按照安装文档修改python库代码，是在/miniconda3/envs/bumblebee/lib/python3.10/site-packages文件夹下
+1. Install Dependencies (Ubuntu 22.04)
+First follow SPU’s installation instructions to install dependencies and set up the Python environment.
+Then activate the conda environment and execute:
+python3 -m pip install -r requirements-dev.txt
 
-2. 编译程序
+Note: There is a bug in jax version. We must install jax[cpu]==0.4.16 instead of 0.4.26.
+Then install transformers:
+pip install 'transformers[flax]'
+
+After installation, JAX and JAXLIB may automatically downgrade to 0.4.13. Manually re-upgrade them to 0.4.16.
+Then modify the Python library code in your environment:
+(miniconda3/envs/bumblebee/lib/python3.10/site-packages)
+
+2. Build the Program
 bazel build -c opt examples/python/ml/flax_bert/... --jobs 32
 
-3. bert执行
+3. Run BERT
 pip install datasets
 env SPU_BB_SET_IEQUAL_BITS=15 bazel run -c opt //examples/python/utils:nodectl -- --config `pwd`/examples/python/conf/2pc.json up
 env SPU_BB_SET_IEQUAL_BITS=15 bazel run -c opt //examples/python/ml/flax_bert -- --config `pwd`/examples/python/conf/2pc.json
 
-4. 修改输入token长度为128
-修改flax_bert.py文件中：
-# input_ids, attention_masks = (
-#     tokenizer(
-#         features,
-#         return_tensors="jax",
-#     )["input_ids"],
-#     tokenizer(
-#         features,
-#         return_tensors="jax",
-#     )["attention_mask"],
-# )
+4. Modify Input Token Length to 128
+In flax_bert.py, change:
 encoded = tokenizer(
     features,
     max_length=128,
@@ -36,7 +33,7 @@ encoded = tokenizer(
 input_ids = encoded["input_ids"]
 attention_masks = encoded["attention_mask"]
 
-5. 修改配置文件2pc.json，实现线程数调整
+5. Modify 2pc.json configuration to adjust thread count
 "runtime_config": {
     "protocol": "CHEETAH",
     "field": "FM64",

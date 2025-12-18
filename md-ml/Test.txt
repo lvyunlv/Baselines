@@ -1,23 +1,24 @@
-1. 安装依赖 (Ubuntu 22.04)
+1. Install Dependencies (Ubuntu 22.04)
 apt install build-essential cmake libboost-system-dev libeigen3-dev
-其中:
+Requirements:
 g++ (Support C++20)
 cmake (>=3.12)
 Boost (1.70.0 or later)
 Eigen (3.0 or later)
 
-2. 编译程序
+2. Build the Program
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j16
 
-3. Mirco Benchmarks (ReLU)
-单机测试:
+3. Micro Benchmarks (ReLU)
+Single-machine test:
 cd build/experiments/reLU
 ./relu_party_0 & ./relu_party_1
-多机环境分别在两台服务器上执行:
-./relu_party_0 10.0.0.2  # at 10.0.0.1
-./relu_party_1 10.0.0.1  # at 10.0.0.2
 
-4. 修改输入Size
-修改experiments/relu_config.h中的dim变量
+Multi-machine environment:
+./relu_party_0 10.0.0.2   # run on 10.0.0.1
+./relu_party_1 10.0.0.1   # run on 10.0.0.2
+
+4. Change Input Size
+Modify the variable dim in experiments/relu_config.h

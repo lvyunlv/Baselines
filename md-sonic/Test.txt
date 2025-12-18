@@ -1,41 +1,44 @@
-1. 安装依赖
+1. Install Dependencies
 jdk1.8
 maven
-安装步骤如下：
+
+Installation steps:
 tar -xzf apache-maven-3.9.6-bin.tar.gz
 tar -xzf jdk-8u401-linux-x64.tar.gz
 mv jdk1.8.0_401/ /usr/local/java
 mv apache-maven-3.9.6 /usr/local/apache-maven-3.9.6
 vim /etc/profile
-增加如下内容:
+Add the following lines:
 export JAVA_HOME=/usr/local/java
 export JRE_HOME=${JAVA_HOME}/jre
 export M2_HOME=/usr/local/apache-maven-3.9.6
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:${M2_HOME}/lib
 export PATH=.:${JAVA_HOME}/bin:$PATH:${M2_HOME}/bin
-保存退出
+Save and exit.
 source /etc/profile
-vim /usr/local/apache-maven-3.9.6/conf/settings.xml
-修改如下内容: (切换镜像源)
+
+Edit /usr/local/apache-maven-3.9.6/conf/settings.xml
+Replace the mirror section as follows (switch to Aliyun mirror):
 <mirror>
     <id>aliyunmaven</id>
     <mirrorOf>*</mirrorOf>
     <name>aliyun maven</name>
     <url>https://maven.aliyun.com/repository/public</url>
 </mirror>
-保存退出
+Save and exit.
 
-2. 编译代码
+2. Build the Code
 cd md-sonic
 mvn package -DskipTests
 
-3. Micro Benchmarks (2PC, 10000)
+3. Micro Benchmarks (2PC, 10,000 iterations)
 cd demos/bench
 make move_2PC
 make runRelu_2PC
-cat server1/log.txt  (查看测试结果)
+cat server1/log.txt   (check test results)
 make clean
 
 4. 4PC, 8PC, 16PC, 32PC, 64PC
-可直接修改make指令为 move_%PC 和 runRelu_%PC
-参与方数量较多时, 10000次可能时间会比较长, 建议在docker中运行，并且先从参与方数量较少的开始测试
+You can change the make command to move_%PC and runRelu_%PC.
+When the number of parties is large, 10,000 iterations may take a long time.
+It is recommended to run inside Docker and start from smaller party numbers.

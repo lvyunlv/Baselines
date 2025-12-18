@@ -1,29 +1,36 @@
-注意要使用EzPC的bert branch: git clone -b bert --single-branch https://github.com/Clive2312/EzPC.git
+Note: Use the EzPC bert branch:
+git clone -b bert --single-branch https://github.com/Clive2312/EzPC.git
 
-1. 安装依赖 (Ubuntu 22.04)
-apt install build-essential cmake libgmp-dev libmpfr-dev libssl-dev 
-其中:
+1. Install Dependencies (Ubuntu 22.04)
+apt install build-essential cmake libgmp-dev libmpfr-dev libssl-dev
+Requirements:
  - g++ (version >= 8)
  - cmake
  - make
  - libgmp-dev
  - libmpfr-dev
- - libssl-dev  
+ - libssl-dev
  - SEAL 3.3.2s
  - Eigen 3.3
 
-在extern中克隆SEAL和Eigen:
+In the extern directory, clone SEAL and Eigen:
 git clone https://gitlab.com/libeigen/eigen.git & git checkout 603e213
 git clone https://github.com/Clive2312/SEAL.git
 
-2. 编译程序
+2. Build the Program
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=./install .. [-DBUILD_TESTS=ON] [-DBUILD_NETWORKS=ON] [-DNO_REVEAL_OUTPUT=ON] (如果要测试bert，需要开启TESTS)
+cmake -DCMAKE_INSTALL_PREFIX=./install .. [-DBUILD_TESTS=ON] [-DBUILD_NETWORKS=ON] [-DNO_REVEAL_OUTPUT=ON] (enable TESTS if you want to run BERT)
 cmake --build . --target install --parallel
 
-3. 解压BOLT-20251208T084116Z-3-001.zip文件，得到权重文件，并配置bolt_bert.cpp中path路径为权重文件路径。
-Model weights are available here: https://drive.google.com/drive/u/1/folders/13bBok39UevQ-6hDWHtBVtLJrYVo5VnsR.
+3. Extract BOLT-20251208T084116Z-3-001.zip to obtain the model weights and set the path in bolt_bert.cpp.
+Model weights are available here:
+https://drive.google.com/drive/u/1/folders/13bBok39UevQ-6hDWHtBVtLJrYVo5VnsR.
 
-4. 执行bert：
+4. Run BERT:
 ./BOLT_BERT r=1 &> tmp0.txt & ./BOLT_BERT r=2 &> tmp1.txt
-线程数在bert.h (#define NL_NTHREADS 32)、linear.h (#define MAX_THREADS 12)和nonlinear.h (#define MAX_THREADS 64)中修改
+
+5. Adjust Thread Counts
+Modify:
+ - bert.h (#define NL_NTHREADS 32)
+ - linear.h (#define MAX_THREADS 12)
+ - nonlinear.h (#define MAX_THREADS 64)
